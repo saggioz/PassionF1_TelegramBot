@@ -1,0 +1,22 @@
+{
+  "name": "passionf1_telegrambot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saggioz/PassionF1_TelegramBot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/saggioz/PassionF1_TelegramBot/issues"
+  },
+  "homepage": "https://github.com/saggioz/PassionF1_TelegramBot#readme",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}
