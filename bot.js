@@ -10,7 +10,11 @@ bot.on("message", (msg) => {
    const text = msg.text;
 
    if (text === "/start") {
-      bot.sendMessage(chatId, "Hello world");
+      bot.sendMessage(chatId, "Ciao e grazie di aver scelto PassionF1Bot");
+   }
+
+   if (text === "/races") {
+      bot.sendMessage(chatId, "Ecco l'elenco delle gare");
    }
    
 });
