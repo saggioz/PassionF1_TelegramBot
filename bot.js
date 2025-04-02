@@ -15,24 +15,20 @@ bot.on("message", async (msg) => {
    }
 
    if (text === "/help") {
-      bot.sendMessage(chatId, "Ecco la lista dei comandi che puoi utilizzare:\n/races: restituisce le gare del campionato 2025\n/driver: restituisce la lista dei piloti del campionato 2025\n/constructor: restituisce la lista dei costruttori del campionato 2025\n/driverchampionship: restituisce la classifica dei piloti nel campionato 2025\n/constructor championship: restituisce la classifica dei costruttori nel campionato 2025")
+      bot.sendMessage(chatId, "Ecco la lista dei comandi che puoi utilizzare:\n/Races: restituisce le gare del campionato 2025\n/Driver: restituisce la lista dei piloti del campionato 2025\n/Constructor: restituisce la lista dei costruttori del campionato 2025\n/DriverStanding: restituisce la classifica dei piloti nel campionato 2025\n/ConstructorStanding: restituisce la classifica dei costruttori nel campionato 2025")
    }
 
-   if (text === "/races") {
+   if (text === "/Races") {
       try {
-         const response1 = await fetch("https://api.jolpi.ca/ergast/f1/?limit=30&offset=1110");
-         const response2 = await fetch("https://api.jolpi.ca/ergast/f1/?limit=30&offset=1140");
+         const response = await fetch("https://api.jolpi.ca/ergast/f1/2025/races.json");
          
-         if (response1.ok === false || response2.ok === false) {
+         if (response.ok === false) {
             return bot.sendMessage("Errore nel caricamento dell'API");
          }
 
-         const data1 = await response1.json();
-         const data2 = await response2.json();
+         const data = await response.json();
 
-         const races1 = data1.MRData.RaceTable.Races.slice(15);
-         const races2 = data2.MRData.RaceTable.Races;
-         const races = [...races1, ...races2];
+         const races = data.MRData.RaceTable.Races;
 
          if (races.length === 0) {
             return bot.sendMessage(chatId, "Nessuna gara trovata");
@@ -50,9 +46,9 @@ bot.on("message", async (msg) => {
       }
    }
 
-   if (text === "/driver") {
+   if (text === "/Driver") {
       try {
-         const response = await fetch("https://api.jolpi.ca/ergast/f1/2024/drivers/");
+         const response = await fetch("https://api.jolpi.ca/ergast/f1/2025/drivers.json");
 
          if (response.ok === false) {
             return bot.sendMessage("Errore nel caricamento dell'API");
@@ -78,9 +74,9 @@ bot.on("message", async (msg) => {
       }
    }
 
-   if (text === "/constructor") {
+   if (text === "/Constructor") {
       try {
-         const response = await fetch("https://api.jolpi.ca/ergast/f1/2024/constructors/");
+         const response = await fetch("https://api.jolpi.ca/ergast/f1/2025/constructors.json/");
 
          if (response.ok === false) {
             return bot.sendMessage("Errore nel caricamento dell'API");
@@ -105,4 +101,35 @@ bot.on("message", async (msg) => {
          console.error(error);
       }
    }
+
+   if (text === "/DriverStanding") {
+      try {
+         const response = await fetch("https://api.jolpi.ca/ergast/f1/2025/driverstandings.json/");
+
+         if(response.ok === false) {
+            return bot.sendMessage(chatId, "Nessuna classifica piloti trovata");
+         }
+
+         const data = await response.json();
+         
+         const standingsLists = data.MRData.StandingsTable.StandingsLists;
+
+         if (standingsLists.length === 0){
+            return bot.sendMessage(chatId, "Classifica piloti non trovata");
+         }
+
+         const driverStandings = standingsLists[0].DriverStandings;
+
+         let driverStandingsList = "🏎️ Classifica Piloti 2025:\n";
+         driverStandings.forEach((driver) => {
+            driverStandingsList += `${driver.position}: ${driver.givenName} ${driver.familyName} - Punti: ${driver.points}\n`;
+         });
+
+         bot.sendMessage(chatId, driverStandingsList);
+      } catch (error) {
+         bot.sendMessage(chatId, "Errore nel recupero della classifica piloti");
+         console.error(error);
+      }
+   }
+
 });
