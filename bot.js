@@ -122,12 +122,42 @@ bot.on("message", async (msg) => {
 
          let driverStandingsList = "🏎️ Classifica Piloti 2025:\n";
          driverStandings.forEach((driver) => {
-            driverStandingsList += `${driver.position}: ${driver.givenName} ${driver.familyName} - Punti: ${driver.points}\n`;
+            driverStandingsList += `${driver.position || "20"}: ${driver.Driver.givenName} ${driver.Driver.familyName} - Punti: ${driver.points}\n`;
          });
 
          bot.sendMessage(chatId, driverStandingsList);
       } catch (error) {
          bot.sendMessage(chatId, "Errore nel recupero della classifica piloti");
+         console.error(error);
+      }
+   }
+
+   if (text === "/ConstructorStanding") {
+      try {
+         const response = await fetch("https://api.jolpi.ca/ergast/f1/2025/constructorstandings.json/");
+
+         if(response.ok === false) {
+            return bot.sendMessage(chatId, "Nessuna classifica costruttori trovata");
+         }
+
+         const data = await response.json();
+         
+         const standingsLists = data.MRData.StandingsTable.StandingsLists;
+
+         if (standingsLists.length === 0){
+            return bot.sendMessage(chatId, "Classifica costruttori non trovata");
+         }
+
+         const construcotorStandings = standingsLists[0].ConstructorStandings;
+
+         let constructorStandingsList = "🏎️ Classifica Costruttori 2025:\n";
+         construcotorStandings.forEach((construcotor) => {
+            constructorStandingsList += `${construcotor.position}: ${construcotor.Constructor.name} - Punti: ${construcotor.points} - Vittorie: ${construcotor.wins}\n`;
+         });
+
+         bot.sendMessage(chatId, constructorStandingsList);
+      } catch (error) {
+         bot.sendMessage(chatId, "Errore nel recupero della classifica costruttori");
          console.error(error);
       }
    }
