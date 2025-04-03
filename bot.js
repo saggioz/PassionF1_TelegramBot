@@ -181,13 +181,11 @@ bot.on("message", async (msg) => {
    
          races.forEach((race) => {
             message += `🏆 ${race.raceName}:\n`;
-   
             race.Results.forEach((result) => {
                const driver = result.Driver;
                const constructor = result.Constructor;
                message += `🔹 ${result.position}: - ${driver.givenName} ${driver.familyName} (${constructor.name}) - Punti: ${result.points}\n`;
             });
-   
             message += "\n";
          });
    
