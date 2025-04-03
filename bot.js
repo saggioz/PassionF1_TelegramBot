@@ -15,7 +15,7 @@ bot.on("message", async (msg) => {
    }
 
    if (text === "/help") {
-      bot.sendMessage(chatId, "Ecco la lista dei comandi che puoi utilizzare:\n/Races: restituisce le gare del campionato 2025\n/Driver: restituisce la lista dei piloti del campionato 2025\n/Constructor: restituisce la lista dei costruttori del campionato 2025\n/DriverStanding: restituisce la classifica dei piloti nel campionato 2025\n/ConstructorStanding: restituisce la classifica dei costruttori nel campionato 2025")
+      bot.sendMessage(chatId, "Ecco la lista dei comandi che puoi utilizzare:\n/Races: restituisce il calendario delle gare del campionato 2025\n/Driver: restituisce la lista dei piloti che partecipano al campionato 2025\n/Constructor: restituisce la lista dei costruttori che partecipano al campionato 2025\n/DriverStanding: restituisce la classifica piloti attuale nel campionato 2025\n/ConstructorStanding: restituisce la classifica costruttori attuale nel campionato 2025\n/Results: Restituisce i risultati delle gare del campionato 2025")
    }
 
    if (text === "/Races") {
@@ -62,7 +62,7 @@ bot.on("message", async (msg) => {
             return bot.sendMessage(chatId, "Nessun pilota trovato");
          }
 
-         let driverList = "🏎️ Piloti in F1:\n";
+         let driverList = "🏆 Lista dei Piloti:\n";
          drivers.forEach((driver) => {
             driverList += `${driver.givenName} ${driver.familyName} (${driver.permanentNumber}) ${driver.nationality}\n`;
          });
@@ -90,7 +90,7 @@ bot.on("message", async (msg) => {
             return bot.sendMessage(chatId, "Nessuna squadra trovata");
          }
 
-         let constructorList = "🏎️ Squadre in F1:\n";
+         let constructorList = "🏎️ Lista delle Squadre:\n";
          constructors.forEach((constructor) => {
             constructorList += `${constructor.name} - ${constructor.nationality}\n`;
          });
@@ -120,9 +120,9 @@ bot.on("message", async (msg) => {
 
          const driverStandings = standingsLists[0].DriverStandings;
 
-         let driverStandingsList = "🏎️ Classifica Piloti 2025:\n";
+         let driverStandingsList = "🏆 Classifica Piloti 2025:\n";
          driverStandings.forEach((driver) => {
-            driverStandingsList += `${driver.position || "20"}: ${driver.Driver.givenName} ${driver.Driver.familyName} - Punti: ${driver.points}\n`;
+            driverStandingsList += `${driver.position || "20"}: ${driver.Driver.givenName} ${driver.Driver.familyName} - Punti: ${driver.points} - Vittorie: ${driver.wins}\n`;
          });
 
          bot.sendMessage(chatId, driverStandingsList);
@@ -161,5 +161,41 @@ bot.on("message", async (msg) => {
          console.error(error);
       }
    }
+
+   if (text === "/Results") {
+      try {
+         const response = await fetch("https://api.jolpi.ca/ergast/f1/2025/results.json");
+   
+         if (!response.ok) {
+            return bot.sendMessage(chatId, "Nessun risultato trovato");
+         }
+   
+         const data = await response.json();
+         const races = data.MRData.RaceTable.Races;
+   
+         if (races.length === 0) {
+            return bot.sendMessage(chatId, "Nessuna gara trovata");
+         }
+   
+         let message = "🏁 Risultati delle gare 2025:\n\n";
+   
+         races.forEach((race) => {
+            message += `🏆 ${race.raceName}:\n`;
+   
+            race.Results.forEach((result) => {
+               const driver = result.Driver;
+               const constructor = result.Constructor;
+               message += `🔹 ${result.position}: - ${driver.givenName} ${driver.familyName} (${constructor.name}) - Punti: ${result.points}\n`;
+            });
+   
+            message += "\n";
+         });
+   
+         bot.sendMessage(chatId, message);
+      } catch (error) {
+         bot.sendMessage(chatId, "Errore nel recupero dei risultati di gara");
+         console.error(error);
+      }
+   }   
 
 });
