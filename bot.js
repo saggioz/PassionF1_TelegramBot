@@ -166,7 +166,7 @@ bot.on("message", async (msg) => {
       try {
          const response = await fetch("https://api.jolpi.ca/ergast/f1/2025/results.json");
    
-         if (!response.ok) {
+         if (response.ok === false) {
             return bot.sendMessage(chatId, "Nessun risultato trovato");
          }
    
