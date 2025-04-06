@@ -34,7 +34,7 @@ bot.on("message", async (msg) => {
             return bot.sendMessage(chatId, "Nessuna gara trovata");
          }
 
-         let raceList = "📅 Prossime gare F1:\n";
+         let raceList = "📅 Calendario del campionato di F1 2025:\n";
          races.forEach((race) => {
             raceList += `🏁 ${race.raceName} - ${race.Circuit.circuitName} (${race.date})\n`;
          });
