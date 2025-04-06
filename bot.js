@@ -15,7 +15,7 @@ bot.on("message", async (msg) => {
    }
 
    if (text === "/help") {
-      bot.sendMessage(chatId, "Ecco la lista dei comandi che puoi utilizzare:\n/Races: restituisce il calendario delle gare del campionato 2025\n/Driver: restituisce la lista dei piloti che partecipano al campionato 2025\n/Constructor: restituisce la lista dei costruttori che partecipano al campionato 2025\n/DriverStanding: restituisce la classifica piloti attuale nel campionato 2025\n/ConstructorStanding: restituisce la classifica costruttori attuale nel campionato 2025\n/Results: Restituisce i risultati delle gare del campionato 2025")
+      bot.sendMessage(chatId, "Ecco la lista dei comandi che puoi utilizzare:\n/Races: restituisce il calendario delle gare del campionato 2025\n/Driver: restituisce la lista dei piloti che partecipano al campionato 2025\n/Constructor: restituisce la lista dei costruttori che partecipano al campionato 2025\n/Results: Restituisce i risultati delle gare del campionato 2025\n/DriverStanding: restituisce la classifica piloti attuale nel campionato 2025\n/ConstructorStanding: restituisce la classifica costruttori attuale nel campionato 2025")
    }
 
    if (text === "/Races") {
@@ -164,30 +164,50 @@ bot.on("message", async (msg) => {
 
    if (text === "/Results") {
       try {
-         const response = await fetch("https://api.jolpi.ca/ergast/f1/2025/results.json");
+         const response1 = await fetch("https://api.jolpi.ca/ergast/f1/2025/results.json/");
+         const response2 = await fetch("https://api.jolpi.ca/ergast/f1/2025/results/?format=json&limit=30&offset=30");
    
-         if (response.ok === false) {
+         if (response1.ok === false || response2.ok === false) {
             return bot.sendMessage(chatId, "Nessun risultato trovato");
          }
+
+         const data1 = await response1.json();
+         const data2 = await response2.json();
+
+         const result1 = data1.MRData.RaceTable.Races;
+         const result2 = data2.MRData.RaceTable.Races;
+         const results = [...result1, ...result2];
+
    
-         const data = await response.json();
-         const races = data.MRData.RaceTable.Races;
-   
-         if (races.length === 0) {
+         if (results.length === 0) {
             return bot.sendMessage(chatId, "Nessuna gara trovata");
          }
-   
-         let message = "🏁 Risultati delle gare 2025:\n\n";
-   
-         races.forEach((race) => {
-            message += `🏆 ${race.raceName}:\n`;
-            race.Results.forEach((result) => {
-               const driver = result.Driver;
-               const constructor = result.Constructor;
-               message += `🔹 ${result.position}: - ${driver.givenName} ${driver.familyName} (${constructor.name}) - Punti: ${result.points}\n`;
-            });
-            message += "\n";
+
+         const uniti = {};
+
+         results.forEach(race => {
+            const a = `${race.round}-${race.raceName}`;
+            if (!uniti[a]) {
+               uniti[a] = {
+                  raceName: race.raceName,
+                  Results: [],
+               }
+            }
+            uniti[a].Results.push(...race.Results);
          });
+   
+         let message = "🏁 Risultati delle gare 2025:\n";
+   
+         for (const a in uniti) {
+            const race = uniti[a];
+            message += `🏆 ${race.raceName}:\n`;
+            for (const result of race.Results) {
+                const driver = result.Driver;
+                const constructor = result.Constructor;
+                message += `🔹 ${result.position}: - ${driver.givenName} ${driver.familyName} (${constructor.name}) - Punti: ${result.points}\n`;
+            }
+            message += "\n";
+        }
    
          bot.sendMessage(chatId, message);
       } catch (error) {
